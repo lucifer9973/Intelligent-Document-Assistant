@@ -1,7 +1,7 @@
 # Intelligent Document Assistant
 
 An AI-powered agent that reads, understands, and analyzes documents intelligently. Upload PDFs, Word docs, research papers, or any text document and ask questions about them - getting instant, accurate answers with source citations.
-
+(every thing is Documneted so noone will have any problem)
 ## 🎯 Key Features
 
 - **Multi-Format Support**: PDF, DOCX, TXT, PPTX
