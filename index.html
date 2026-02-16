@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Intelligent Document Assistant</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 20px;
+            height: calc(100vh - 40px);
+        }
+
+        .sidebar {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid #e5e7eb;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .sidebar-header h1 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .sidebar-header p {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+
+        .upload-section {
+            padding: 20px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .upload-label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 12px;
+            color: #1f2937;
+            font-size: 14px;
+        }
+
+        .upload-area {
+            border: 2px dashed #d1d5db;
+            border-radius: 8px;
+            padding: 24px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .upload-area:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+
+        .upload-area.dragover {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+
+        .upload-area p {
+            font-size: 13px;
+            color: #6b7280;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        .documents-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .documents-title {
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #1f2937;
+            font-size: 14px;
+        }
+
+        .document-item {
+            padding: 10px;
+            margin-bottom: 8px;
+            background: #f3f4f6;
+            border-radius: 6px;
+            font-size: 13px;
+            color: #374151;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .document-item:hover {
+            background: #e5e7eb;
+        }
+
+        .document-item.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .sidebar-footer {
+            padding: 20px;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-small {
+            flex: 1;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-reset {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .btn-reset:hover {
+            background: #fca5a5;
+        }
+
+        .btn-memory {
+            background: #dbeafe;
+            color: #2563eb;
+        }
+
+        .btn-memory:hover {
+            background: #bfdbfe;
+        }
+
+        .main-content {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .chat-header {
+            padding: 20px;
+            border-bottom: 1px solid #e5e7eb;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .chat-header h2 {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .message {
+            display: flex;
+            gap: 12px;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.user {
+            justify-content: flex-end;
+        }
+
+        .message-content {
+            max-width: 70%;
+            padding: 12px 16px;
+            border-radius: 8px;
+            word-wrap: break-word;
+        }
+
+        .message.user .message-content {
+            background: #667eea;
+            color: white;
+            border-bottom-right-radius: 2px;
+        }
+
+        .message.assistant .message-content {
+            background: #f3f4f6;
+            color: #1f2937;
+            border-bottom-left-radius: 2px;
+        }
+
+        .message.system .message-content {
+            background: #fef3c7;
+            color: #92400e;
+            margin: 10px auto;
+            text-align: center;
+            font-size: 12px;
+        }
+
+        .chat-input-area {
+            padding: 20px;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            gap: 10px;
+        }
+
+        .input-wrapper {
+            display: flex;
+            gap: 10px;
+            width: 100%;
+        }
+
+        #queryInput {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: border-color 0.2s;
+        }
+
+        #queryInput:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn-send {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-send:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-send:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .loading {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+        }
+
+        .loading span {
+            width: 8px;
+            height: 8px;
+            background: #667eea;
+            border-radius: 50%;
+            animation: bounce 1.4s infinite;
+        }
+
+        .loading span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .loading span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes bounce {
+            0%, 80%, 100% {
+                opacity: 0.5;
+                transform: translateY(0);
+            }
+            40% {
+                opacity: 1;
+                transform: translateY(-10px);
+            }
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            background: #dbeafe;
+            color: #1e40af;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-top: 8px;
+        }
+
+        .status-badge.error {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .status-badge.success {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .memory-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .memory-modal.show {
+            display: flex;
+        }
+
+        .memory-content {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            max-width: 500px;
+            max-height: 70vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .memory-content h3 {
+            margin-bottom: 20px;
+            color: #1f2937;
+        }
+
+        .memory-item {
+            padding: 12px;
+            background: #f3f4f6;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            font-size: 13px;
+            color: #374151;
+        }
+
+        .close-modal {
+            float: right;
+            font-size: 24px;
+            cursor: pointer;
+            color: #6b7280;
+        }
+
+        .close-modal:hover {
+            color: #1f2937;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+                height: auto;
+            }
+
+            .sidebar {
+                height: auto;
+            }
+
+            .message-content {
+                max-width: 90%;
+            }
+        }
+
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            color: #9ca3af;
+            text-align: center;
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+
+        .empty-state p {
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h1>📚 Document Assistant</h1>
+                <p>Upload documents and ask questions</p>
+            </div>
+
+            <div class="upload-section">
+                <label class="upload-label">Upload Document</label>
+                <div class="upload-area" id="uploadArea">
+                    <p>📄 Click to upload or drag & drop</p>
+                    <p style="font-size: 11px; margin-top: 8px; color: #9ca3af;">PDF, DOCX, TXT, PPTX</p>
+                </div>
+                <input type="file" id="fileInput" accept=".pdf,.docx,.txt,.pptx" />
+            </div>
+
+            <div class="documents-list">
+                <div class="documents-title">Documents</div>
+                <div id="documentsList">
+                    <p style="font-size: 13px; color: #9ca3af; text-align: center; padding: 20px 0;">No documents uploaded</p>
+                </div>
+            </div>
+
+            <div class="sidebar-footer">
+                <button class="btn-small btn-memory" id="memoryBtn">📋 Memory</button>
+                <button class="btn-small btn-reset" id="resetBtn">🔄 Reset</button>
+            </div>
+        </div>
+
+        <!-- Main Chat Area -->
+        <div class="main-content">
+            <div class="chat-header">
+                <h2>Chat</h2>
+            </div>
+
+            <div class="chat-messages" id="chatMessages">
+                <div class="empty-state">
+                    <div class="empty-state-icon">💬</div>
+                    <p>Upload a document and ask questions to get started</p>
+                </div>
+            </div>
+
+            <div class="chat-input-area">
+                <div class="input-wrapper">
+                    <input 
+                        type="text" 
+                        id="queryInput" 
+                        placeholder="Ask a question about your documents..."
+                        autocomplete="off"
+                    />
+                    <button class="btn-send" id="sendBtn">Send</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Memory Modal -->
+    <div class="memory-modal" id="memoryModal">
+        <div class="memory-content">
+            <span class="close-modal" id="closeMemory">&times;</span>
+            <h3>Conversation Memory</h3>
+            <div id="memoryContent">Loading...</div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8000';
+        const chatMessages = document.getElementById('chatMessages');
+        const queryInput = document.getElementById('queryInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const documentsList = document.getElementById('documentsList');
+        const memoryBtn = document.getElementById('memoryBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const memoryModal = document.getElementById('memoryModal');
+        const closeMemory = document.getElementById('closeMemory');
+
+        let isLoading = false;
+        let uploadedDocuments = [];
+
+        // Upload Area Events
+        uploadArea.addEventListener('click', () => {
+            console.log('📂 Opening file picker...');
+            fileInput.click();
+        });
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+            console.log('🎯 File dragged over upload area');
+        });
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+            console.log('➗ File moved away from upload area');
+        });
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            console.log('📥 File dropped:', e.dataTransfer.files[0]?.name);
+            handleFileUpload(e.dataTransfer.files[0]);
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files[0]) {
+                console.log('📁 File selected:', e.target.files[0].name);
+                handleFileUpload(e.target.files[0]);
+            }
+        });
+
+        // Send Query
+        sendBtn.addEventListener('click', () => {
+            console.log('📤 Sending query...');
+            sendQuery();
+        });
+        queryInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !isLoading) {
+                console.log('📤 Sending query (Enter key)...');
+                sendQuery();
+            }
+        });
+
+        // Memory Button
+        memoryBtn.addEventListener('click', () => {
+            console.log('📋 Opening conversation memory...');
+            showMemory();
+        });
+        closeMemory.addEventListener('click', () => {
+            console.log('❌ Closing memory modal');
+            memoryModal.classList.remove('show');
+        });
+        memoryModal.addEventListener('click', (e) => {
+            if (e.target === memoryModal) {
+                console.log('❌ Closing memory modal (click outside)');
+                memoryModal.classList.remove('show');
+            }
+        });
+
+        // Reset Button
+        resetBtn.addEventListener('click', async () => {
+            if (confirm('Are you sure you want to reset the conversation?')) {
+                try {
+                    console.log('🔄 Resetting conversation...');
+                    const response = await fetch(`${API_BASE}/reset`, { method: 'POST' });
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+                    chatMessages.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">💬</div>
+                            <p>Conversation reset. Ready to ask new questions!</p>
+                        </div>
+                    `;
+                    addSystemMessage('✅ Conversation has been reset', 'success');
+                    console.log('✅ Conversation reset successfully');
+                } catch (error) {
+                    addSystemMessage(`❌ Reset failed: ${error.message}. Make sure backend is running.`, 'error');
+                    console.error('Reset error:', error);
+                }
+            }
+        });
+
+        async function handleFileUpload(file) {
+            if (!file) return;
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            sendBtn.disabled = true;
+            addSystemMessage(`Uploading ${file.name}...`);
+
+            try {
+                const response = await fetch(`${API_BASE}/upload`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    uploadedDocuments.push({
+                        name: file.name,
+                        id: data.file_id || file.name
+                    });
+                    updateDocumentsList();
+                    addSystemMessage(`✅ Successfully uploaded "${file.name}"`, 'success');
+                    clearChatIfEmpty();
+                } else {
+                    addSystemMessage(`Error uploading file: ${data.detail || 'Unknown error'}`, 'error');
+                    console.error('Upload error response:', data);
+                }
+            } catch (error) {
+                addSystemMessage(`❌ Cannot upload: ${error.message}. Make sure backend is running.`, 'error');
+                console.error('Upload error:', error);
+            } finally {
+                sendBtn.disabled = false;
+                fileInput.value = '';
+            }
+        }
+
+        function updateDocumentsList() {
+            if (uploadedDocuments.length === 0) {
+                documentsList.innerHTML = '<p style="font-size: 13px; color: #9ca3af; text-align: center; padding: 20px 0;">No documents uploaded</p>';
+                return;
+            }
+
+            documentsList.innerHTML = uploadedDocuments
+                .map((doc, i) => `<div class="document-item" title="${doc.name}">📄 ${doc.name.substring(0, 25)}${doc.name.length > 25 ? '...' : ''}</div>`)
+                .join('');
+        }
+
+        async function sendQuery() {
+            const query = queryInput.value.trim();
+            if (!query) {
+                console.warn('⚠️ Query is empty');
+                return;
+            }
+            if (isLoading) {
+                console.warn('⚠️ Already processing a query');
+                return;
+            }
+            if (uploadedDocuments.length === 0) {
+                console.warn('⚠️ No documents uploaded');
+                addSystemMessage('❌ Please upload a document first', 'error');
+                return;
+            }
+
+            isLoading = true;
+            sendBtn.disabled = true;
+
+            console.log(`📨 Sending query: "${query}"`);
+            addMessage(query, 'user');
+            queryInput.value = '';
+
+            addLoadingMessage();
+
+            try {
+                const response = await fetch(`${API_BASE}/query`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        query: query,
+                        stream: false
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    // Remove loading message and add response
+                    chatMessages.removeChild(chatMessages.lastChild);
+                    console.log(`✅ Received response: ${data.response?.substring(0, 100)}...`);
+                    addMessage(data.response, 'assistant');
+                } else {
+                    chatMessages.removeChild(chatMessages.lastChild);
+                    const errorMsg = data.detail || 'Unknown error';
+                    console.error(`❌ Query error: ${errorMsg}`);
+                    addMessage(`Error: ${errorMsg}`, 'assistant');
+                    console.error('Query error response:', data);
+                }
+            } catch (error) {
+                chatMessages.removeChild(chatMessages.lastChild);
+                console.error(`❌ Query failed: ${error.message}`);
+                addMessage(`❌ Error: ${error.message}. Make sure backend is running.`, 'assistant');
+                console.error('Query error:', error);
+            } finally {
+                isLoading = false;
+                sendBtn.disabled = false;
+                queryInput.focus();
+            }
+        }
+
+        async function showMemory() {
+            try {
+                const response = await fetch(`${API_BASE}/memory`);
+                const data = await response.json();
+
+                const memoryContent = document.getElementById('memoryContent');
+                if (data.history && data.history.length > 0) {
+                    memoryContent.innerHTML = data.history
+                        .map((item, i) => `
+                            <div class="memory-item">
+                                <strong>Q${i + 1}:</strong> ${item.query || 'N/A'}<br/>
+                                <strong>A:</strong> ${(item.response || 'N/A').substring(0, 100)}...
+                            </div>
+                        `)
+                        .join('');
+                } else {
+                    memoryContent.innerHTML = '<p style="color: #9ca3af; text-align: center;">No conversation history yet</p>';
+                }
+
+                memoryModal.classList.add('show');
+            } catch (error) {
+                alert(`❌ Error loading memory: ${error.message}`);
+                console.error('Memory error:', error);
+            }
+        }
+
+        function addMessage(content, role) {
+            clearChatIfEmpty();
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${role}`;
+            messageDiv.innerHTML = `<div class="message-content">${escapeHtml(content)}</div>`;
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            console.log(`💬 Added ${role} message: ${content.substring(0, 50)}...`);
+        }
+
+        function addLoadingMessage() {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message assistant';
+            messageDiv.innerHTML = `
+                <div class="message-content">
+                    <div class="loading">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                </div>
+            `;
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function addSystemMessage(content, type = 'info') {
+            clearChatIfEmpty();
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message system`;
+            messageDiv.innerHTML = `<div class="message-content"><span class="status-badge ${type}">${content}</span></div>`;
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            console.log(`📢 System [${type}]: ${content}`);
+        }
+
+        function clearChatIfEmpty() {
+            const empty = chatMessages.querySelector('.empty-state');
+            if (empty) {
+                console.log('🧹 Clearing empty state to make room for messages...');
+                chatMessages.innerHTML = '';
+            }
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Health check on load
+        window.addEventListener('load', async () => {
+            console.log('🔍 Testing API connection...');
+            try {
+                console.log(`📡 Attempting to connect to: ${API_BASE}`);
+                const response = await fetch(`${API_BASE}/health`);
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('✅ API is healthy:', data);
+                    addSystemMessage('✅ Connected to API successfully', 'success');
+                } else {
+                    console.error('❌ API returned error:', response.status, response.statusText);
+                    addSystemMessage(`⚠️ API error: ${response.status} ${response.statusText}`, 'error');
+                }
+            } catch (error) {
+                console.error('❌ Connection failed:', error);
+                addSystemMessage(
+                    `⚠️ Cannot connect to API at ${API_BASE}\n\nMake sure:\n1. Backend is running: python -m uvicorn src.api.main:app --reload --host 0.0.0.0 --port 8000\n2. Wait for "Application startup complete" message\n3. Then refresh this page`,
+                    'error'
+                );
+            }
+        });
+    </script>
+</body>
+</html>

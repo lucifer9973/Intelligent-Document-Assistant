@@ -1,0 +1,58 @@
+# .gitignore
+
+# Virtual environments
+venv/
+env/
+ENV/
+*.pyc
+__pycache__/
+*.egg-info/
+dist/
+build/
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Temporary files
+*.tmp
+*.log
+/tmp/
+
+# Uploaded files
+uploads/
+/temp_uploads/
+
+# Cache
+.pytest_cache/
+.coverage
+htmlcov/
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Test results
+.coverage
+htmlcov/
+
+# API credentials
+credentials.json
+secrets.json
+
+# Model files
+*.bin
+*.pt
+
+# Large data files
+data/
+models/

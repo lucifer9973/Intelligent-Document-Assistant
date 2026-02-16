@@ -1,0 +1,29 @@
+Test Document - Intelligent Document Assistant
+
+This is a test document to verify the system works correctly.
+It contains multiple paragraphs of sample text.
+
+Section 1: Key Information
+The system is designed to process documents and answer questions.
+It uses vector embeddings to find relevant information.
+AI models generate responses based on the content.
+
+Section 2: Features
+Document Upload: Drag and drop or click to upload documents.
+Smart Chunking: Automatic document segmentation for processing.
+Vector Database: Efficient retrieval using embeddings.
+AI Responses: Powered by Claude 3 Sonnet model.
+
+Section 3: Test Content
+The weather was sunny today with a high of 75 degrees.
+Python is a popular programming language used worldwide.
+Machine learning enables computers to learn from data.
+Document processing has many real-world applications.
+
+Section 4: System Architecture
+The backend uses FastAPI for REST API endpoints.
+Pinecone stores vector embeddings for semantic search.
+Claude AI generates contextual responses.
+The frontend is built with vanilla HTML, CSS, and JavaScript.
+
+End of test document.
