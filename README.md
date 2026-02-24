@@ -1,7 +1,7 @@
 # Intelligent Document Assistant
 
 An AI-powered agent that reads, understands, and analyzes documents intelligently. Upload PDFs, Word docs, research papers, or any text document and ask questions about them - getting instant, accurate answers with source citations.
-(every thing is Documneted so noone will have any problem)
+
 ## 🎯 Key Features
 
 - **Multi-Format Support**: PDF, DOCX, TXT, PPTX
@@ -23,6 +23,8 @@ source venv/Scripts/activate  # Windows: venv\Scripts\activate
 
 # Install dependencies
 pip install -r requirements.txt
+# Optional (only if running a local GGUF model):
+# pip install -r requirements.txt -r requirements-local-llm.txt
 
 # Setup environment variables
 cp .env.example .env
@@ -98,6 +100,7 @@ Answer with Sources
 ## 📖 Documentation
 
 - **[SETUP_DOCUMENTATION.md](SETUP_DOCUMENTATION.md)** - Complete setup & architecture guide
+- **[DEPLOYMENT.md](DEPLOYMENT.md)** - Render + Vercel deployment guide
 - **[API Docs](http://localhost:8000/docs)** - Interactive Swagger UI (when running)
 
 ## 🧪 Testing
@@ -123,6 +126,12 @@ AWS_REGION=us-east-1
 ```
 
 See `.env.example` for all options.
+
+## ☁️ Deployment Notes
+
+- Render is recommended for the backend (`render.yaml` included).
+- Vercel is recommended for the frontend (`frontend/`).
+- Local model files are large; for cloud deploys prefer API-based models unless you run on dedicated compute.
 
 ## 🎓 Use Cases
 

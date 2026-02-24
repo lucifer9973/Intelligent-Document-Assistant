@@ -1,0 +1,19 @@
+:root{--bg:#0f172a;--accent:#7c3aed;--muted:#9ca3af}
+body{font-family:Inter,system-ui,Segoe UI,Arial;background:linear-gradient(180deg,#0f172a,#111827);color:#e5e7eb;margin:0;height:100vh}
+.app-grid{display:grid;grid-template-columns:320px 1fr;gap:20px;height:100vh;padding:20px}
+.sidebar{background:#0b1220;padding:16px;border-radius:8px}
+.main{background:linear-gradient(180deg,#071029,#0b1220);margin:16px;border-radius:8px;padding:12px}
+.upload{display:flex;flex-direction:column;gap:8px}
+.upload-label{background:transparent;border:1px dashed #374151;padding:10px;border-radius:6px;cursor:pointer;text-align:center}
+.sidebar-actions{display:flex;gap:8px;margin-top:12px}
+.chat{display:flex;flex-direction:column;height:calc(100vh - 150px)}
+.messages{flex:1;overflow:auto;padding:12px}
+.msg{margin-bottom:10px}
+.msg.user{text-align:right}
+.bubble{display:inline-block;padding:10px 14px;border-radius:12px;background:#111827;color:#e5e7eb}
+.composer{display:flex;gap:8px;padding:8px}
+.composer input{flex:1;padding:8px;border-radius:6px;border:1px solid #374151;background:transparent;color:#e5e7eb}
+button{background:var(--accent);border:none;padding:8px 12px;border-radius:6px;color:white;cursor:pointer}
+.modal-backdrop{position:fixed;inset:0;background:rgba(2,6,23,0.6);display:flex;align-items:center;justify-content:center}
+.modal{background:#041025;padding:16px;border-radius:8px;width:600px;max-height:80vh;overflow:auto}
+.memory-item{padding:8px;border-bottom:1px solid #0b1220}

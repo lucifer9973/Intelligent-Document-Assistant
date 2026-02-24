@@ -8,6 +8,7 @@ import sys
 import json
 
 API_BASE = "http://localhost:8000"
+__test__ = False  # Utility script, not part of automated pytest collection.
 
 def test_backend_health():
     """Test if backend is running"""

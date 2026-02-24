@@ -4,7 +4,6 @@ Configuration settings for Intelligent Document Assistant
 from pydantic_settings import BaseSettings
 from pydantic import ConfigDict
 from typing import List
-import os
 
 
 class Settings(BaseSettings):
@@ -16,9 +15,21 @@ class Settings(BaseSettings):
     api_host: str = "0.0.0.0"
     api_port: int = 8000
     environment: str = "development"
+    cors_origins: str = (
+        "http://localhost:5173,"
+        "http://127.0.0.1:5173,"
+        "http://localhost:8000,"
+        "http://127.0.0.1:8000,"
+        "null"
+    )
+    cors_allow_credentials: bool = False
+    frontend_dist_path: str = "frontend/dist"
     
     # Anthropic Claude API
     anthropic_api_key: str = ""
+    
+    # Local LLM Model (GPT4All)
+    local_llm_model_path: str = ""
     
     # Pinecone Vector Database
     pinecone_api_key: str = ""
@@ -46,11 +57,21 @@ class Settings(BaseSettings):
     
     # Logging
     log_level: str = "INFO"
+
+    # Production safety toggles
+    require_llm_in_production: bool = True
+    require_pinecone_in_production: bool = True
+    max_fallback_memory_items: int = 200
     
     @property
     def supported_formats_list(self) -> List[str]:
         """Convert supported formats string to list"""
         return [fmt.strip() for fmt in self.supported_formats.split(",")]
+
+    @property
+    def cors_origins_list(self) -> List[str]:
+        """Convert CORS origins string to list"""
+        return [origin.strip() for origin in self.cors_origins.split(",") if origin.strip()]
 
 
 # Create global settings instance

@@ -1,0 +1,5 @@
+# Optional dependency set for local GGUF model inference.
+# Install this only on machines that should run local models:
+#   pip install -r requirements.txt -r requirements-local-llm.txt
+gpt4all>=2.8.0
+llama-cpp-python>=0.2.0

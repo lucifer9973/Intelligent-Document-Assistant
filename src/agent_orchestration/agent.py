@@ -96,7 +96,21 @@ class DocumentAssistantAgent:
             # Step 4: Generate response
             self.state = AgentState.GENERATING
             if use_streaming:
-                response = self._generate_streaming_response(query, documents)
+                stream = self._generate_streaming_response(query, documents)
+
+                def stream_with_memory():
+                    chunks = []
+                    for chunk in stream:
+                        chunks.append(chunk)
+                        yield chunk
+
+                    response = "".join(chunks)
+                    self.memory.add_query(query)
+                    self.memory.add_message("user", query)
+                    self.memory.add_message("assistant", response)
+                    self.state = AgentState.COMPLETED
+
+                return stream_with_memory()
             else:
                 response = self._generate_response(query, documents)
             
@@ -176,14 +190,11 @@ class DocumentAssistantAgent:
     def _generate_streaming_response(self, query: str, documents: List[Dict]) -> str:
         """Generate streaming response"""
         if self.generator is None:
-            return "Generator not configured"
+            yield "Generator not configured"
+            return
         
-        response = ""
         for chunk in self.generator.stream_response(query, documents):
-            response += chunk
             yield chunk  # Yield for streaming
-        
-        return response
     
     def get_memory(self) -> AgentMemory:
         """Get agent memory for context"""
